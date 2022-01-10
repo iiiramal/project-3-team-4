@@ -10,7 +10,7 @@ from api_keys import g_key
 # Collect Latitude/Longitude data from google. 
 
 # Target
-target = '30346'  # as a test example (it can be anything)
+target = '30350'  # as a test example (it can be anything)
 # Build the endpoint URL
 target_url = f"https://maps.googleapis.com/maps/api/geocode/json?address={target}&key={g_key}"
 # Run a request to endpoint and convert result to json
@@ -103,6 +103,7 @@ rest_dict = response.json()
 number_restaurants = len(rest_dict["businesses"])
 y=0
 search_zip = []
+bus_id = []
 name = []
 price = []
 rating = []
@@ -489,7 +490,10 @@ yelp_art_dict = {
 
 yelp_art_data = pd.DataFrame(yelp_art_dict)
 
-#print(search_data)
+yelp_data.to_csv('restaurant_data.csv', index=False)
+entry_data.to_csv('entry_data.csv', index=False)
+
+#print(entry_data)
 #print(yelp_data)
 #print(yelp_bar_data)
 #print(yelp_hotel_data)
