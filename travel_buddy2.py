@@ -1,7 +1,8 @@
 # pip install sqlalchemy-utils
 
 def getCoordinates(target):
-# This function uses Google Geocode to convert the user's search into latitude / longitude coordinates.
+# This function uses Google Geocode to convert the user's search into a coordinate tuple: (latitude, longitude).
+# If an error is encountered, the text string "N/A" is returned instead.
 
     #Imports
     import requests
@@ -21,24 +22,25 @@ def getCoordinates(target):
         response = requests.get(target_url)
         geo_data = response.json()
 
-        # Extract latitude and longitude
-        lat = geo_data["results"][0]["geometry"]["location"]["lat"]
-        lng = geo_data["results"][0]["geometry"]["location"]["lng"]
+        # Extract latitude and longitude and round to nearest half-mile
+        lat = round(geo_data["results"][0]["geometry"]["location"]["lat"], 2)
+        lng = round(geo_data["results"][0]["geometry"]["location"]["lng"], 2)
 
         # Output the coordinates
         print(f"Latitude: {lat}")
         print(f"Longitude: {lng}")
-        return ([lat, lng])
+        return (lat, lng)
 
     except:
-        # Returnb an error message if API request failed
+        # Return an error message if API request failed
         print(f"An error has occured: {response.status_code} {response.reason}")
-        return ("N/A")
+        return "N/A"
 
 ##############################################################################################################################
 
 def getYelpPlaces(input_lat, input_lon, category):
 # This function collects the data from Yelp API and returns it as a dataframe.
+# If and error is encountered, the text string "N/A" is returned instead.
 
     #Imports
     import requests
@@ -69,7 +71,7 @@ def getYelpPlaces(input_lat, input_lon, category):
         yelp_data = response.json()
     except:
         print(f"An error has occured: {response.status_code} {response.reason}")    
-        return ("N/A")
+        return "N/A"
 
     num_places = len(yelp_data["businesses"])
 
@@ -123,12 +125,14 @@ def getYelpPlaces(input_lat, input_lon, category):
     yelp_DF = pd.DataFrame(yelp_dict)
 
     # Return the dataframe
-    return (yelp_DF.head())
+    return yelp_DF
 
 ##############################################################################################################################
 
 def appendTable(DF, table_name):
 # This function inserts a table into the PostgreSQL database.
+# If an error is encountered, messages are sent to the terminal.
+# Make sure your password is saved in file "api_keys.py" and make sure that PostgreSQL is running!!!
 
     # Imports
     import pandas as pd
@@ -143,7 +147,6 @@ def appendTable(DF, table_name):
     table_name = "Restaurants"
 
     # Put dataframes into PostgreSQL database
-    # Make sure your password has been retrieved above and make sure that PostgreSQL is running!!!
     try:
         engine = sql.create_engine(f"postgresql://postgres:{postgresql_pwd}@localhost/TravelBuddyDB")
         print("Connection to PostgreSQL successful.")
