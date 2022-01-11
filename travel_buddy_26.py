@@ -2,18 +2,18 @@
 import pandas as pd
 import requests
 import json
+import logging
 from datetime import *
 import sqlalchemy as sql
 from sqlalchemy_utils import database_exists, create_database
 
-# Get Google developer API key from file: api_keys.py
+# Get API keys and SQL password from file: api_keys.py
 from api_keys import g_key
-
-# Get Yelp API key from file: api_keys.py
 from api_keys import yelp_key
-
-# Get PostgreSQL password from file: api_keys.py
 from api_keys import postgresql_pwd
+
+# Set the logging level (used for debugging)
+logging.basicConfig(level=logging.ERROR)
 
 ############################################################################################################################
 
@@ -30,12 +30,12 @@ def getCoordinates(search):
         response = requests.get(target_url)
         geo_data = response.json()
         if len(geo_data["results"]) == 0:
-            print("Zero results returned for this search.")
+            logging.info("Zero results returned for this search.")
             return("N/A", "N/A", "N/A")
     except:
         # Print an error message if API request failed
-        print(f"A Google error has occured: {response.status_code} {response.reason}")
-        return("N/A", "N/A", "N/A")
+        logging.info(f"A Google error has occured: {response.status_code} {response.reason}")
+        return("N/A", "N/A", pd.DataFrame())
 
     # Extract latitude and longitude from the response and create the primary key
     lat = round(geo_data["results"][0]["geometry"]["location"]["lat"], 2)
@@ -79,11 +79,11 @@ def getCoordinates(search):
 ############################################################################################################################
 
 # test of function getCoordinates
-test_search = "Buckhead, GA"
-latitude, longitude, search_DF = getCoordinates(test_search)
-print(f"Latitude: {latitude}")
-print(f"Longitude: {longitude}")
-search_DF
+# test_search = "Buckhead, GA"
+# latitude, longitude, search_DF = getCoordinates(test_search)
+# print(f"Latitude: {latitude}")
+# print(f"Longitude: {longitude}")
+# search_DF
 
 ############################################################################################################################
 
@@ -105,8 +105,8 @@ def getYelpPlaces(input_lat, input_lon, category):
         response = requests.get(url, headers=headers, params=params, timeout=5)
         yelp_data = response.json()
     except:
-        print(f"A Yelp error has occured: {response.status_code} {response.reason}")    
-        return("N/A")
+        logging.info(f"A Yelp error has occured: {response.status_code} {response.reason}")    
+        return(pd.DataFrame())
 
     # Define empty lists to place data into
     search_zip = []
@@ -163,10 +163,10 @@ def getYelpPlaces(input_lat, input_lon, category):
 ############################################################################################################################
 
 # Test of function getYelpPlaces (parameters latitude and longitude were set in previous cell)
-categories = ['restaurants', 'bars', 'hotels', 'gyms', 'landmarks', 'arts']
-table_names = categories
-test_DF = getYelpPlaces(latitude, longitude, categories[1])
-test_DF
+# categories = ['restaurants', 'bars', 'hotels', 'gyms', 'landmarks', 'arts']
+# table_names = categories
+# test_DF = getYelpPlaces(latitude, longitude, categories[1])
+# test_DF
 
 ############################################################################################################################
 
@@ -183,29 +183,33 @@ def updateTable(DF, table_name):
     # Put dataframes into PostgreSQL database
     try:
         engine = sql.create_engine(f"postgresql://postgres:{postgresql_pwd}@localhost/TravelBuddyDB")
-        print("Connection to PostgreSQL successful.")
+        logging.info("Connection to PostgreSQL successful.")
         if not database_exists(engine.url):
             create_database(engine.url)
-            print("New database created: TravelBuddyDB")
+            logging.info("New database created: TravelBuddyDB")
         else:
-            print("Connection to database TravelBuddyDB successful.")
+            logging.info("Connection to database TravelBuddyDB successful.")
         try:
             with engine.connect() as cnxn:  # the connection will automatically close after executing the with block
-                engine.execute(f'delete from "{table_name}" where "loc_key" = \'{loc_key}\'') # delete rows if loc_key already present
+                logging.info("engine.connect")
+                tables = sql.inspect(engine).get_table_names()
+                if table_name in tables:
+                    engine.execute(f'delete from "{table_name}" where "loc_key" = \'{loc_key}\'') # delete rows if loc_key already present
+                logging.info("Deleted old table rows.")
                 DF.to_sql(table_name, cnxn, if_exists="append", index=False)
-                print(f"{table_name} successfully inserted.")            
+                logging.info(f"{table_name} successfully inserted.")            
         except:
-            print("Failed to create table.")
+            logging.info(f"Failed to create {table_name} table.")
     except:
-        print("Failed to connect.")
+        logging.info("Failed to connect.")
 
 
 ############################################################################################################################
 
 # Test of function updateTable
-categories = ['restaurants', 'bars', 'hotels', 'gyms', 'landmarks', 'arts']
-table_names = categories
-updateTable(test_DF, categories[1])
+# categories = ['restaurants', 'bars', 'hotels', 'gyms', 'landmarks', 'arts']
+# table_names = categories
+# updateTable(test_DF, categories[1])
 
 ############################################################################################################################
 
@@ -216,34 +220,34 @@ def getFromTable(search_table, search_item):
     search_column = "loc_key"
     
     engine = sql.create_engine(f"postgresql://postgres:{postgresql_pwd}@localhost/TravelBuddyDB")
-    print("Connection to PostgreSQL successful.")
+    logging.info("Connection to PostgreSQL successful.")
     if database_exists(engine.url):
         tables = sql.inspect(engine).get_table_names()
-        # print (tables)
+        logging.info(tables)
         if search_table in tables:
             with engine.connect() as cnxn:
                 result = engine.execute(f'Select * from "{search_table}" where "{search_column}" = \'{search_item}\'').fetchall()
                 if len(result) > 0:
                     result_DF = pd.read_sql(f'Select * from "{search_table}" where "{search_column}" = \'{search_item}\'', cnxn)
                 else:
-                    result_DF = "N/A"
+                    result_DF = pd.DataFrame()
         else:
-            print(f"{table_name} does not exist.")
-            result_DF = "N/A"
+            logging.info(f"{search_table} does not exist.")
+            result_DF = pd.DataFrame()
     else:
-        print("TravelBuddyDB does not exist.")
-        result_DF = "N/A"
+        logging.info("TravelBuddyDB does not exist.")
+        result_DF = pd.DataFrame()
         
     return(result_DF)
 
 ############################################################################################################################
 
 # Test of function getFromTable
-categories = ['restaurants', 'bars', 'hotels', 'gyms', 'landmarks', 'arts']
-table_name = categories[1]
-loc_key = "33.84,-84.41"
-new_DF = getFromTable(table_name, loc_key)
-new_DF
+# categories = ['restaurants', 'bars', 'hotels', 'gyms', 'landmarks', 'arts']
+# table_name = categories[1]
+# loc_key = "33.84,-84.41"
+# new_DF = getFromTable(table_name, loc_key)
+# new_DF
 
 ############################################################################################################################
 
