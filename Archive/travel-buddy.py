@@ -2,6 +2,7 @@
 import requests
 import json
 import pandas as pd
+from datetime import *
 
 # Get Google developer API key from file: api_keys.py
 from api_keys import g_key
@@ -9,17 +10,68 @@ from api_keys import g_key
 # Collect Latitude/Longitude data from google. 
 
 # Target
-target = "30346"  # as a test example (it can be anything)
+target = '30350'  # as a test example (it can be anything)
 # Build the endpoint URL
 target_url = f"https://maps.googleapis.com/maps/api/geocode/json?address={target}&key={g_key}"
 # Run a request to endpoint and convert result to json
 geo_data = requests.get(target_url).json()
+
+#check to see if target is zip code
+
+#zip_check = target.isnumeric()
+#print(json.dumps(geo_data, indent=4, sort_keys=True))
+
 # Extract latitude and longitude
-lat = geo_data["results"][0]["geometry"]["location"]["lat"]
-lng = geo_data["results"][0]["geometry"]["location"]["lng"]
+
+lat = round(geo_data["results"][0]["geometry"]["location"]["lat"],2)
+lng = round(geo_data["results"][0]["geometry"]["location"]["lng"],2)
+loc_key = f'{lat},{lng}'
+#Extract State and Country data.
+
+g_range = len(geo_data['results'][0]["address_components"])
+
+search_data = {}
+area = ''
+city = ''
+state = ''
+country = ''
+
+for y in range(g_range):
+    if geo_data["results"][0]["address_components"][y]["types"][0] == "neighborhood":
+        area = geo_data["results"][0]["address_components"][y]["long_name"]
+    if geo_data["results"][0]["address_components"][y]["types"][0] == "locality":
+        city = geo_data["results"][0]["address_components"][y]["long_name"]
+    if geo_data["results"][0]["address_components"][y]["types"][0] == "administrative_area_level_1":
+        state = geo_data["results"][0]["address_components"][y]["long_name"]
+    if geo_data["results"][0]["address_components"][y]["types"][0] == "country":
+        country = geo_data["results"][0]["address_components"][y]["long_name"]
+    if area == '':
+        area = 'N/A'
+     
+#Find Current Date
+
+input_date = date.isoformat(date.today())
+#+ timedelta(days =7)
+#input_date_str = input_date.strftime("%d/%m/%Y %H:%M:%S")
+
+search_data = {'Loc_Key': loc_key, 'Area': area, 'City': city, 'State': state, 'Country': country, 'Input Date': input_date}
+
+entry_data = pd.DataFrame(search_data, index=[0])
+print(entry_data)
+
+
+#print(len(geo_data['results'][0]["address_components"]))
+#print(type(target))
+zip_check = target.isnumeric()
+print(zip_check)
 # Output the coordinates
 print(f"Latitude: {lat}")
 print(f"Longitude: {lng}")
+print(f'{area},{city},{state},{country}')
+
+#print(geo_data)
+#print(json.dumps(geo_data, indent=4, sort_keys=True))
+#print(state)
 
 #--------------------------------------
 
@@ -39,7 +91,7 @@ params = {'categories': 'restaurants',
           'limit': 50
           }
 
-response = requests.get(url, headers=headers, params=params, timeout=5)
+response = requests.get(url, headers=headers, params=params, timeout=20)
 
 rest_dict = response.json()
 
@@ -51,6 +103,7 @@ rest_dict = response.json()
 number_restaurants = len(rest_dict["businesses"])
 y=0
 search_zip = []
+bus_id = []
 name = []
 price = []
 rating = []
@@ -119,7 +172,7 @@ bar_params = {'categories': 'bars',
           'limit': 50
           }
 
-bar_response = requests.get(url, headers=headers, params=bar_params, timeout=5)
+bar_response = requests.get(url, headers=headers, params=bar_params, timeout=20)
 
 bar_dict = bar_response.json()
 
@@ -190,7 +243,7 @@ gym_params = {'categories': 'gyms',
           'limit': 10
           }
 
-gym_response = requests.get(url, headers=headers, params=gym_params, timeout=5)
+gym_response = requests.get(url, headers=headers, params=gym_params, timeout=20)
 
 gym_dict = gym_response.json()
 
@@ -252,7 +305,7 @@ hotel_params = {'categories': 'hotels',
           'limit': 50
           }
 
-hotel_response = requests.get(url, headers=headers, params=hotel_params, timeout=5)
+hotel_response = requests.get(url, headers=headers, params=hotel_params, timeout=20)
 
 hotel_dict = hotel_response.json()
 
@@ -325,7 +378,7 @@ landmark_params = {'categories': 'landmarks',
           'limit': 25
           }
 
-landmark_response = requests.get(url, headers=headers, params=landmark_params, timeout=5)
+landmark_response = requests.get(url, headers=headers, params=landmark_params, timeout=20)
 
 landmark_dict = landmark_response.json()
 
@@ -387,7 +440,7 @@ art_params = {'categories': 'arts',
           'limit': 25
           }
 
-art_response = requests.get(url, headers=headers, params=art_params, timeout=5)
+art_response = requests.get(url, headers=headers, params=art_params, timeout=20)
 
 art_dict = art_response.json()
 
@@ -437,6 +490,10 @@ yelp_art_dict = {
 
 yelp_art_data = pd.DataFrame(yelp_art_dict)
 
+yelp_data.to_csv('restaurant_data.csv', index=False)
+entry_data.to_csv('entry_data.csv', index=False)
+
+#print(entry_data)
 #print(yelp_data)
 #print(yelp_bar_data)
 #print(yelp_hotel_data)
