@@ -286,6 +286,6 @@ def getFromTable(search_table, search_item):
     return(result_DF)
 
 
-db_check('Buckhead')
+#db_check('Buckhead')
 
-#new_user()
+new_user()
