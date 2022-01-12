@@ -20,7 +20,7 @@ logging.basicConfig(level=logging.ERROR)
 def getCoordinates(search):
     # This function uses Google Geocode to convert the user's search into latitude / longitude coordinates.
     # It returns the latitude, longitude, and a single row dataframe of metadata about the search area.
-    # If nothing is found "N/A", "N/A", "N/A" is returned.
+    # If nothing is found "N/A", "N/A", and an empty dataframe are returned.
 
     # Build the endpoint URL
     target_url = f"https://maps.googleapis.com/maps/api/geocode/json?address={search}&key={g_key}"
@@ -88,7 +88,7 @@ def getCoordinates(search):
 ############################################################################################################################
 
 def getYelpPlaces(input_lat, input_lon, category):
-    # This function collects the data from Yelp API and returns it as a dataframe.
+    # This function collects data from Yelp API about the category at the passed in coordinates and returns it as a dataframe.
 
     # Construct the search parameters
     headers = {'Authorization': 'Bearer {}'.format(yelp_key)}
@@ -174,7 +174,6 @@ def updateTable(DF, table_name):
     # This function inserts a dataframe into a table in the PostgreSQL database.
     # If the dataframe's primary key already exists in the table, those rows are deleted before the
     # new rows are appended onto the end of the table.
-    # If an error is encountered, messages are sent to the terminal.
     # Make sure your password is saved in file "api_keys.py".
 
     # Extract Primary Key from dataframe
@@ -215,6 +214,7 @@ def updateTable(DF, table_name):
 
 def getFromTable(search_table, search_item):
     # This function searches the PostgreSQL database and returns the requested data from the specified table as a dataframe.
+    # If the search_item is not present in the table, an empty dataframe is returned.
     # Make sure your password is saved in file "api_keys.py".
 
     search_column = "loc_key"
