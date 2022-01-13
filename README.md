@@ -4,6 +4,10 @@
 
 ### How It Works (User):
 
+1. Input location into search bar(Cities, Zip Codes, and Landmarks accepted). The more specific your search, the better your results. 
+2. The map will immediately show the searched location. 
+3. Click on a category button to produce a list of the top 5 listings (by rating) in your chosen category. 
+
 ##
 
 ### How It Works (BTS):
