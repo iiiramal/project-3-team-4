@@ -6,6 +6,16 @@
 
 ##
 
+### How It Works (BTS):
+
+##
+
+### Prereqs:
+
+##
+
+### Structure:
+
 * The folder Project 3 DV contains all files to produce the front end product. 
 * The folder "Resources" contains all of the backend files required to build and update the database.
   * "SQL" contains the SQL data files.
