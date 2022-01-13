@@ -42,7 +42,7 @@ def new_user():
 
 def  db_check(target):
     #test_target = '38118'
-    test_days = 0
+    test_days = 7
 
     # Get Google developer API key from file: api_keys.py
     from api_keys import g_key
@@ -286,6 +286,6 @@ def getFromTable(search_table, search_item):
     return(result_DF)
 
 
-#db_check('Buckhead')
+#db_check('brainerd')
 
-new_user()
+#new_user()
