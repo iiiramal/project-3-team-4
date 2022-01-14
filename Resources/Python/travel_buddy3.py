@@ -14,6 +14,9 @@ from sqlalchemy_utils import database_exists, create_database
 from api_keys import password, yelp_key
 import logging
 
+# Set the logging level (used for debugging)
+logging.basicConfig(level=logging.ERROR)
+
 engine = sql.create_engine(f"postgresql://postgres:{password}@localhost/TravelBuddyDB")
 session = Session(engine)
 
@@ -257,33 +260,66 @@ def Yelp_Pull_Enter(exist_test, old_data_check, lat, lng, entry_data, loc_key):
         print(f'Location {loc_key} is already in Database.')
 
 
-def getFromTable(search_table, search_item):
-    # This function searches the PostgreSQL database and returns the requested data from the specified table as a dataframe.
-    # If the search_item is not present in the table, an empty dataframe is returned.
+def getFromTable(table_name, search_item, num_rows=5, sort_by="rating", lowest_to_highest=False):
+    # This function searches the PostgreSQL database "TraelBuddyDB" and returns the requested data from the specified table.
     # Make sure your password is saved in file "api_keys.py".
+    # Input parameters: 
+    #   table_name: string (required) (the name of the table to search in the SQL database)
+    #   search_item: string or numeric (required) (the record identifier to search for in table_name in column "loc_key")
+    #   num_rows: integer (optional, defaults to 5) (the number of rows to return)
+    #   sort_by: string (optional, defaults to "rating") (the column to sort on)
+    #   lowest_to_highest: boolean (optional, defaults to False) (the sorting direction)
+    # Function returns: 
+    #   either a dataframe containing the rows of data found in table_name whose "loc_key" macthes search_item
+    #   or an empty dataframe if nothing is found or if table_name or TravelBuddyDB don't exist
 
+    # Define the search column
     search_column = "loc_key"
     
-    engine = sql.create_engine(f"postgresql://postgres:{password}@localhost/TravelBuddyDB")
+    # Connect to database TravelBuddyDB
+    engine = sql.create_engine(f"postgresql://postgres:{postgresql_pwd}@localhost/TravelBuddyDB")
     logging.info("Connection to PostgreSQL successful.")
+
+    # Check if the database exists and get a list of the tables it contains
     if database_exists(engine.url):
-        tables = sql.inspect(engine).get_table_names()
-        logging.info(tables)
-        if search_table in tables:
+        table_list = sql.inspect(engine).get_table_names()
+        logging.info(table_list)
+
+        # Check if table_name is one of the tables in the database
+        if table_name in table_list:
             with engine.connect() as cnxn:
-                result = engine.execute(f'Select * from "{search_table}" where "{search_column}" = \'{search_item}\'').fetchall()
+
+                # Check if search_item is present in the table
+                result = engine.execute(f'Select * from "{table_name}" where "{search_column}" = \'{search_item}\'').fetchall()
                 if len(result) > 0:
-                    result_DF = pd.read_sql(f'Select * from "{search_table}" where "{search_column}" = \'{search_item}\'', cnxn)
+
+                    # If so, create a dataframe from the table with only the rows containing search_item
+                    result_DF = pd.read_sql(f'Select * from "{table_name}" where "{search_column}" = \'{search_item}\'', cnxn)
                 else:
+
+                    # If not, create an empty dataframe
                     result_DF = pd.DataFrame()
+
+        # If table_name does not exist in the database, create an empty dataframe
         else:
-            logging.info(f"{search_table} does not exist.")
-            result_DF = pd.DataFrame()
+            logging.info(f"{table_name} does not exist.")
+            result_DF = pd.DataFrame()  # table_name does not exist in the database
+
+    # If TravelBuddyDB does not exist, create an empty dataframe
     else:
         logging.info("TravelBuddyDB does not exist.")
-        result_DF = pd.DataFrame()
+        result_DF = pd.DataFrame()  # TravelBuddyDB has not been created yet
         
+    # Sort and truncate the dataframe as specified by the input parameters
+    if not result_DF.empty and table_name != "searches":
+        result_DF = result_DF.sort_values([sort_by], ascending=lowest_to_highest).head(num_rows)
+    
+    # Option 1: Exit and return the dataframe
     return(result_DF)
+
+    # Option 2: Exit and return a json
+    # return(json.loads(result_DF.to_json(orient="records")))
+
 
 
 #db_check('brainerd')
