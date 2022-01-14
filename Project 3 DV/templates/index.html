@@ -14,15 +14,13 @@
 
 <body>
     <h1>Travel Buddy</h1>
-    <form action="/results" method="POST">
+    <!--form action="/results" method="POST"-->
 
     <input id="pac-input" 
             type="text" 
-            name="searchbar"
-            placeholder="Search for the place you like"
-            
-            class="controls" > </input>
-    <input type="button" value="Submit" /></form> 
+            placeholder="Search here"
+            class="controls"/>
+    <!--input type="submit" id="button" /-->
       
   <div id="map"></div>
 
@@ -31,6 +29,8 @@
     src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDFIxvsaRCjNMJ7Rxo3X37WukBZS6h-I74&callback=initAutocomplete&libraries=places&v=weekly" 
     async>
 </script>
+
+
 <!--/form-->  
 <div class="nev">
     <button onclick="myGyms()" id="gyms" class="btn-hover color-7">GYMs</button>
@@ -48,7 +48,7 @@
         <div><div class="TopLocInfo">
             <div>
                 <div class="TopLocInfo_grid">
-                    <div class="IMG"><img class="IMG" src = "../Images/img.jpeg"></div>
+                    <div class="IMG"><img class="IMG" src = "./Images/img.jpeg"></div>
                     <div class="LocName" id="LocName">Location Name</div>
                     <div class="Reviews">
                         <div class="star">
@@ -85,7 +85,12 @@
 
 
 
-
+Scripts
+<script src="https://d3js.org/d3.v6.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<!-- Async script executes immediately and must be after any DOM elements used in callback. -->
+<!-- <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&callback=initMap&v=weekly" async></script> -->
+<script src="static/js/index.js"></script>
 
 </body>
 

@@ -1,3 +1,85 @@
+function GET(path) {
+  return new Promise(function (resolve, reject) {
+      axios.get(path).then((response) => {
+          var result = response.data;
+          resolve(result);
+      }).catch((error) => {
+          reject(error);
+      });
+  });
+}
+
+function POST(path, data) {
+  return new Promise(function (resolve, reject) {
+      axios.post(path, data).then((response) => {
+          var result = response
+          resolve(result)
+      }).catch((error) => {
+          reject(error);
+      });
+  });
+}
+
+d3.json("/api/cheapest_state")
+    .then(function(data){
+        console.log(data)
+        d3.select("#state").text(data.state)
+        d3.select("#price").text(data.median)
+    })
+    .catch(console.log("It no worky yet."))
+
+
+
+ // Initialize and add the map
+ function initMap() {
+  // The location of Uluru
+  const myCoords = { lat: 33.7490, lng: -84.3880};
+  // The map, centered at Uluru
+  const map = new google.maps.Map(document.getElementById("map"), {
+    zoom: 8,
+    center: myCoords,
+  });
+  
+  
+
+
+
+  // The marker, positioned at Uluru
+  const image ="https://developers.google.com/maps/documentation/javascript/examples/full/images/beachflag.png";
+  const beachMarker = new google.maps.Marker({
+      position: uluru,
+      map,
+      icon: image
+  //const marker = new google.maps.Marker({
+    //position: uluru,
+    //map: map,
+  });
+}
+
+
+d3.select("#pac-input").on('keydown', function(e){
+    if (e.code === 'Enter'){
+        let search = d3.select("#pac-input").property("value")
+        console.log("Enter key wwas pressed")
+        console.log(search)
+        data = {'search': search}
+        POST("/api/get_data", data).then(response => {
+            console.log(response.data)
+        })
+    }
+})
+d3.select("#button").on('click', function(){
+    let search = d3.select("#pac-input").property("value")
+    console.log(search)
+    data = {'search': search}
+    POST("/api/get_data", data).then(response => {
+        console.log(response.data)
+    })
+
+})
+
+
+//-----------------------------------------------------------------------------------
 // This example adds a search box to a map, using the Google Place Autocomplete
 // feature. People can enter geographical searches. The search box will return a
 // pick list containing a mix of places and predicted search terms.
@@ -78,6 +160,13 @@ function initAutocomplete() {
 
 //------------------------------------------------------------------------------------
 
+
+
+
+
+
+//-----------------------------------------------------------------------------------------
+
 function myGyms(){
     document.getElementById("headTitle").innerText="GYMs";
 }
@@ -102,3 +191,15 @@ function myAttraction(){
 //------------------------------------------------------------------------------------
 
 
+// add search button
+button_code = 'id="button" type="submit" value="" style="z-index: 0; position: absolute; margin-left: 220px; margin-right: 25px; top: 20px;"'
+var controls = d3.select(".gmnoprint")
+controls.append("button").text(Search)
+
+
+//---------Data Set ---------------//
+
+
+
+
+    //console.log(diningData);
