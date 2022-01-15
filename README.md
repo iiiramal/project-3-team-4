@@ -21,10 +21,14 @@
 ##
 
 ### Future Considerations: 
-1. Date Check
-2. Schema for DB
-3. Leaflet vs Google maps
-4. Visual Star Respresentation
+* Date Check
+ * We would eventually like for data to be cached temporarily, with data over a week old being flushed, and replaced via a new API call. 
+* Schema for DB
+ * Adding Primary and Foreign keys to allow for CASCADING deletes of data to support the Date Check. 
+* Leaflet vs Google Maps
+ * The Google Maps widget appears to cause issues to work around due to its pre-integrated tools. We would like to explore if it is the best map tool to produce our vision. 
+* Visual Star Respresentation
+ * Currently Stars are being displayed as numbers, but we would like to replace these numbers with a visual represention. (i.e. Yelp, Amazon)
 
 ## 
 
