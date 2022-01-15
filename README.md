@@ -28,7 +28,8 @@
 * Leaflet vs Google Maps
  * The Google Maps widget appears to cause issues to work around due to its pre-integrated tools. We would like to explore if it is the best map tool to produce our vision. 
 * Visual Star Respresentation
- * Currently Stars are being displayed as numbers, but we would like to replace these numbers with a visual represention. (i.e. Yelp, Amazon)
+ * Fix star representation to include date pulled from API. 
+* Additional hovering information.
 * Online database hosting. 
  * Eventually we would like the database to be housed online, so allow for better security / maintenance, as well as to share data added from across our user base. 
 
