@@ -42,3 +42,7 @@
   * "SQL" contains the SQL data files.
   * "Python" contains python scripts used for pulling API data and submitting to database. 
   * "Archive" contains all files that are no longer being used. 
+
+### Presentation Link
+https://docs.google.com/presentation/d/1t_PUNOuRbU4rv7RUhbEAdN5eLZLjWCWZnWwAHRw9OL0/edit?usp=sharing
+
