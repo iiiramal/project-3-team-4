@@ -26,6 +26,8 @@
 3. Leaflet vs Google maps
 4. Visual Star Respresentation
 
+## 
+
 ### Structure:
 
 * The folder Project 3 DV contains all files to produce the front end product. 
