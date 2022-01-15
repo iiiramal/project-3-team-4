@@ -1,4 +1,4 @@
-# Travel Buddy: Know Your Options Wherever You Go. 
+# Travel Buddy: Know Your Options, Wherever You Go. 
 
 ## Travel Buddy is an interactive dashboard which allows you to submit a location of your choice in order to return nearby points of interest including hotels, restaurants, gyms, landmarks and entertainment.
 
