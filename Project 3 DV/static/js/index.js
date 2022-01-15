@@ -1,3 +1,10 @@
+console.log("index.js is running normally")
+
+d3.select("#gyms").on('click', function(){
+  console.log("Let's update the display!")  
+});
+
+
 function GET(path) {
   return new Promise(function (resolve, reject) {
       axios.get(path).then((response) => {
@@ -9,6 +16,7 @@ function GET(path) {
   });
 }
 
+// Function for talking to the server
 function POST(path, data) {
   return new Promise(function (resolve, reject) {
       axios.post(path, data).then((response) => {
@@ -20,31 +28,87 @@ function POST(path, data) {
   });
 }
 
-d3.json("/api/cheapest_state")
-    .then(function(data){
-        console.log(data)
-        d3.select("#state").text(data.state)
-        d3.select("#price").text(data.median)
-    })
-    .catch(console.log("It no worky yet."))
 
+// Function to update the individual places elements
+function updatePage(places) {
+  for (let i=0; i < Object.keys(places).length; i++) {
+    d3.select("#LocImg" + i).attr('src', places[i]['image']);
+    d3.select("#LocName" + i).text(places[i]['bus_name']);
+    d3.select("#LocDes" + i).text("ADDRESS: " + places[i]['address'] + ", " + places[i]['city'] + "  " + places[i]['zip_code'] + "    PHONE: " + places[i]['phone']);
+  };
+}
 
+// When the Gym Button is clicked:
+function myGyms(){
+  document.getElementById("headTitle").innerText="GYMs";
+  console.log("Gym button clicked.");
+  let search = d3.select("#pac-input").property("value");
+  let data = {'search': search}
+  POST("/Gyms", data).then(response => {
+    console.log(response.data);
+    updatePage(response.data);    
+  });
+}
 
- // Initialize and add the map
- function initMap() {
-  // The location of Uluru
+// When the Hotels Button is clicked:
+function myHotels(){
+  document.getElementById("headTitle").innerText="Hotels";
+  console.log("Hotels button clicked.");
+  let search = d3.select("#pac-input").property("value");
+  let data = {'search': search}
+  POST("/Hotels", data).then(response => {
+    console.log(response.data);
+    updatePage(response.data); 
+  });
+}
+
+// When the Restaurants Button is clicked:
+function myRestaurant(){
+  document.getElementById("headTitle").innerText="Restaurants";
+  console.log("Restaurantss button clicked.");
+  let search = d3.select("#pac-input").property("value");
+  let data = {'search': search}
+  POST("/Restaurants", data).then(response => {
+    console.log(response.data);
+    updatePage(response.data); 
+  });
+}
+
+// When the Entertainment Button is clicked:
+function myEntertainment(){
+  document.getElementById("headTitle").innerText="Entertainment";
+  console.log("Entertainment button clicked.");
+  let search = d3.select("#pac-input").property("value");
+  let data = {'search': search}
+  POST("/Entertainment", data).then(response => {
+    console.log(response.data);
+    updatePage(response.data); 
+  });
+}
+
+// When the Attractions Button is clicked:
+function myAttraction(){
+  document.getElementById("headTitle").innerText="Attractions";
+  console.log("Attractions button clicked.");
+  let search = d3.select("#pac-input").property("value");
+  let data = {'search': search}
+  POST("/Attractions", data).then(response => {
+    console.log(response.data);
+    updatePage(response.data); 
+  });
+}
+
+// Initialize and add the map
+function initMap() {
+  // The location of Atlanta, GA
   const myCoords = { lat: 33.7490, lng: -84.3880};
-  // The map, centered at Uluru
+  // The map, centered at Atlanta, GA
   const map = new google.maps.Map(document.getElementById("map"), {
     zoom: 8,
     center: myCoords,
   });
   
-  
-
-
-
-  // The marker, positioned at Uluru
+  // The marker, positioned at Atlanta, GA
   const image ="https://developers.google.com/maps/documentation/javascript/examples/full/images/beachflag.png";
   const beachMarker = new google.maps.Marker({
       position: uluru,
@@ -55,29 +119,6 @@ d3.json("/api/cheapest_state")
     //map: map,
   });
 }
-
-
-d3.select("#pac-input").on('keydown', function(e){
-    if (e.code === 'Enter'){
-        let search = d3.select("#pac-input").property("value")
-        console.log("Enter key wwas pressed")
-        console.log(search)
-        data = {'search': search}
-        POST("/api/get_data", data).then(response => {
-            console.log(response.data)
-        })
-    }
-})
-d3.select("#button").on('click', function(){
-    let search = d3.select("#pac-input").property("value")
-    console.log(search)
-    data = {'search': search}
-    POST("/api/get_data", data).then(response => {
-        console.log(response.data)
-    })
-
-})
-
 
 //-----------------------------------------------------------------------------------
 // This example adds a search box to a map, using the Google Place Autocomplete
@@ -160,6 +201,15 @@ function initAutocomplete() {
 
 //------------------------------------------------------------------------------------
 
+d3.select("#gyms").on('click', function(){
+  console.log("Let's update the display!")  
+  let search = d3.select("#pac-input").property("value")
+  console.log(search)
+    data = {'search': search}
+    POST("/api/get_data", data).then(response => {
+       console.log(response.data)
+    })
+});
 
 
 
@@ -167,34 +217,15 @@ function initAutocomplete() {
 
 //-----------------------------------------------------------------------------------------
 
-function myGyms(){
-    document.getElementById("headTitle").innerText="GYMs";
-}
-
-function myHotels(){
-    document.getElementById("headTitle").innerText="Hotels";
-}
-
-function myRestaurant(){
-    document.getElementById("headTitle").innerText="Restaurants";
-}
-
-function myEntertainment(){
-    document.getElementById("headTitle").innerText="Entertainment";
-}
-
-function myAttraction(){
-    document.getElementById("headTitle").innerText="Attraction";
-}
 
 
 //------------------------------------------------------------------------------------
 
 
 // add search button
-button_code = 'id="button" type="submit" value="" style="z-index: 0; position: absolute; margin-left: 220px; margin-right: 25px; top: 20px;"'
-var controls = d3.select(".gmnoprint")
-controls.append("button").text(Search)
+// button_code = 'id="button" type="submit" value="" style="z-index: 0; position: absolute; margin-left: 220px; margin-right: 25px; top: 20px;"'
+// var controls = d3.select(".gmnoprint")
+// controls.append("button").text(Search)
 
 
 //---------Data Set ---------------//
